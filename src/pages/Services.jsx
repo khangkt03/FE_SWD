@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 
 const serviceData = [
@@ -63,36 +64,39 @@ const Services = () => {
     <>
       <Navbar />
       <div className="bg-pink-100 min-h-screen pt-16">
-        <div className="container mx-auto py-8 px-4 max-w-6xl">
-          <h1 className="text-center text-2xl font-bold mb-8">Các dịch vụ chúng tôi cung cấp</h1>
+        <div className="container mx-auto py-6 px-4 max-w-5xl">
+          <h1 className="text-center text-xl font-bold mb-6">Các dịch vụ chúng tôi cung cấp</h1>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {serviceData.map((service) => (
-              <div key={service.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+              <div key={service.id} className="bg-white rounded-md shadow-sm overflow-hidden hover:shadow transition-shadow">
                 <img
                   src={service.image}
                   alt={service.title}
-                  className="w-full h-44 object-cover"
+                  className="w-full h-32 object-cover"
                 />
-                <div className="p-3">
-                  <h2 className="text-base font-bold mb-2">{service.title}</h2>
-                  <p className="text-gray-600 mb-3 text-sm h-12 overflow-hidden">{service.description}</p>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-green-500 font-bold text-sm">{service.price}</span>
-                    <span className="text-yellow-500 text-sm">
+                <div className="p-2.5">
+                  <h2 className="text-sm font-bold mb-1.5">{service.title}</h2>
+                  <p className="text-gray-600 mb-2 text-xs h-8 overflow-hidden">{service.description}</p>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-green-500 font-bold text-xs">{service.price}</span>
+                    <span className="text-yellow-500 text-xs">
                       <i className="fas fa-star"></i> {service.rating}
                     </span>
                   </div>
-                  <div className="flex items-center text-gray-600 mb-3 text-sm">
-                    <i className="fas fa-map-marker-alt mr-2"></i>
+                  <div className="flex items-center text-gray-600 mb-2 text-xs">
+                    <i className="fas fa-map-marker-alt mr-1.5"></i>
                     <span>{service.location}</span>
                   </div>
-                  <div className="flex flex-col space-y-2">
-                    <button className="bg-green-500 text-white py-1.5 rounded text-sm hover:bg-green-600 transition-colors w-full">
+                  <div className="flex flex-col space-y-1.5">
+                    <button className="bg-green-500 text-white py-1 rounded-sm text-xs hover:bg-green-600 transition-colors w-full">
                       Đặt lịch ngay
                     </button>
-                    <button className="bg-blue-500 text-white py-1.5 rounded text-sm hover:bg-blue-600 transition-colors w-full">
+                    <Link 
+                      to={`/services/${service.id}`} 
+                      className="bg-blue-500 text-white py-1 rounded-sm text-xs hover:bg-blue-600 transition-colors w-full text-center"
+                    >
                       Xem chi tiết
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -100,16 +104,16 @@ const Services = () => {
           </div>
 
           {/* Pagination */}
-          <div className="flex justify-center mt-6">
-            <button className="bg-gray-300 text-gray-700 px-3 py-1.5 rounded-l text-sm">
+          <div className="flex justify-center mt-5">
+            <button className="bg-gray-300 text-gray-700 px-2.5 py-1 rounded-l text-xs">
               <i className="fas fa-chevron-left"></i>
             </button>
-            <button className="bg-blue-500 text-white px-3 py-1.5 text-sm">1</button>
-            <button className="bg-white text-gray-700 px-3 py-1.5 text-sm">2</button>
-            <button className="bg-white text-gray-700 px-3 py-1.5 text-sm">...</button>
-            <button className="bg-white text-gray-700 px-3 py-1.5 text-sm">9</button>
-            <button className="bg-white text-gray-700 px-3 py-1.5 text-sm">10</button>
-            <button className="bg-gray-300 text-gray-700 px-3 py-1.5 rounded-r text-sm">
+            <button className="bg-blue-500 text-white px-2.5 py-1 text-xs">1</button>
+            <button className="bg-white text-gray-700 px-2.5 py-1 text-xs">2</button>
+            <button className="bg-white text-gray-700 px-2.5 py-1 text-xs">...</button>
+            <button className="bg-white text-gray-700 px-2.5 py-1 text-xs">9</button>
+            <button className="bg-white text-gray-700 px-2.5 py-1 text-xs">10</button>
+            <button className="bg-gray-300 text-gray-700 px-2.5 py-1 rounded-r text-xs">
               <i className="fas fa-chevron-right"></i>
             </button>
           </div>

@@ -5,10 +5,12 @@ import PetSlider from './components/PetSlider';
 import Hero from './components/Hero';
 import ServicesSection from './components/Services';
 import Services from './pages/Services';
+import ServiceDetail from './pages/ServiceDetail';
 import Features from './components/Features';
 import FeaturedProducts from './components/FeaturedProducts';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
+import Booking from './pages/Booking';
 
 function HomePage() {
   return (
@@ -30,6 +32,8 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/services" element={<Services />} />
+          <Route path="/services/:id" element={<ServiceDetail />} />
+          <Route path="/booking/:id" element={<Booking />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>
