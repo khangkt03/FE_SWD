@@ -1,25 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Minus, Plus, ShoppingCart, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
-interface Product {
-  id: number;
-  name: string;
-  image: string;
-  price: number;
-  originalPrice: number;
-  description: string;
-  discount: number;
-}
+/**
+ * @typedef {Object} Product
+ * @property {number} id
+ * @property {string} name
+ * @property {string} image
+ * @property {string} description
+ * @property {number} price
+ * @property {number} quantity
+ */
 
-const products: Product[] = [
+const products = [
   {
     id: 1,
-    name: "Royal Canin Medium Adult",
-    image: "https://images.unsplash.com/photo-1589924691995-400dc9ecc119?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-    price: 850000,
-    originalPrice: 1000000,
-    description: "Thức ăn cao cấp cho chó trưởng thành giống vừa",
-    discount: 15
+    name: "Royal Canin Mini Adult",
+    image: "https://example.com/royal-canin.jpg",
+    description: "Thức ăn cho chó trưởng thành giống nhỏ",
+    price: 250000,
+    quantity: 1
   },
   {
     id: 2,
@@ -61,7 +60,7 @@ const products: Product[] = [
 
 const FeaturedProducts = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
 
   const currentProducts = [
@@ -86,7 +85,7 @@ const FeaturedProducts = () => {
     setCurrentIndex((prev) => (prev - 1 + products.length) % products.length);
   };
 
-  const formatPrice = (price: number) => {
+  const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND'

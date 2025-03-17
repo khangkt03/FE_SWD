@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const petImages = [
@@ -21,9 +21,9 @@ const petImages = [
 ];
 
 const PetSlider = () => {
-  const [currentSlide, setCurrentSlide] = React.useState(0);
+  const [currentSlide, setCurrentSlide] = useState(0);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % petImages.length);
     }, 5000);
@@ -91,4 +91,4 @@ const PetSlider = () => {
   );
 };
 
-export default PetSlider;
+export default PetSlider; 
