@@ -12,7 +12,15 @@ const Profile = () => {
   const [pets, setPets] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [isAddPetModalOpen, setIsAddPetModalOpen] = useState(false);
-  
+  const [currentPage, setCurrentPage] = useState(1);
+  const petsPerPage = 4; // 2 hàng x 2 pet
+
+  // Tính toán pets cho trang hiện tại
+  const indexOfLastPet = currentPage * petsPerPage;
+  const indexOfFirstPet = indexOfLastPet - petsPerPage;
+  const currentPets = pets.slice(indexOfFirstPet, indexOfLastPet);
+  const totalPages = Math.ceil(pets.length / petsPerPage);
+
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -76,6 +84,11 @@ const Profile = () => {
     } catch (error) {
       console.error('Error fetching pets:', error);
     }
+  };
+
+  // Hàm chuyển trang
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
   };
 
   return (
@@ -145,24 +158,71 @@ const Profile = () => {
                     />
                     
                     {pets.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {pets.map((pet) => (
-                          <div key={pet.petId} className="bg-white rounded-lg shadow-md p-6">
-                            <div className="flex items-center space-x-4">
-                              <img 
-                                src={pet.picture} 
-                                alt={pet.petName}
-                                className="w-24 h-24 rounded-full object-cover"
-                              />
-                              <div>
-                                <h3 className="text-xl font-semibold text-gray-800">{pet.petName}</h3>
-                                <p className="text-gray-600">{pet.breed}</p>
-                                <p className="text-gray-600">{pet.age} tuổi</p>
+                      <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {currentPets.map((pet) => (
+                            <div key={pet.petId} className="bg-white rounded-lg shadow-md p-6">
+                              <div className="flex items-center space-x-4">
+                                <img 
+                                  src={pet.picture || '/default-pet.png'} 
+                                  alt={pet.petName}
+                                  className="w-24 h-24 rounded-full object-cover"
+                                />
+                                <div>
+                                  <h3 className="text-xl font-semibold text-gray-800">{pet.petName}</h3>
+                                  <p className="text-gray-600">
+                                    <span className="font-bold">Giống</span>: {pet.breed}
+                                  </p>
+                                  <p className="text-gray-600">
+                                    <span className="font-bold">Tuổi</span>: {pet.age} tuổi
+                                  </p>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
+                          ))}
+                        </div>
+
+                        {/* Phân trang - đã bỏ điều kiện totalPages > 1 */}
+                        <div className="flex justify-center mt-6 space-x-2">
+                          <button
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className={`px-4 py-2 rounded-md ${
+                              currentPage === 1
+                                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                : 'bg-rose-500 text-white hover:bg-rose-600'
+                            }`}
+                          >
+                            Trước
+                          </button>
+                          
+                          {[...Array(totalPages || 1)].map((_, index) => (
+                            <button
+                              key={index + 1}
+                              onClick={() => handlePageChange(index + 1)}
+                              className={`px-4 py-2 rounded-md ${
+                                currentPage === index + 1
+                                  ? 'bg-rose-500 text-white'
+                                  : 'bg-white text-gray-700 hover:bg-gray-100'
+                              }`}
+                            >
+                              {index + 1}
+                            </button>
+                          ))}
+                          
+                          <button
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className={`px-4 py-2 rounded-md ${
+                              currentPage === totalPages
+                                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                : 'bg-rose-500 text-white hover:bg-rose-600'
+                            }`}
+                          >
+                            Sau
+                          </button>
+                        </div>
+                      </>
                     ) : (
                       <div className="text-center py-12 bg-white rounded-lg shadow">
                         <p className="text-gray-600">Bạn chưa có thú cưng nào</p>
