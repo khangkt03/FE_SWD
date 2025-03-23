@@ -77,6 +77,13 @@ const Navbar = () => {
                       >
                         Lịch đặt của tôi
                       </Link>
+                      <Link 
+                        to="/profile" 
+                        className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
+                      >
+                        <User className="h-5 w-5 mr-2" />
+                        Trang cá nhân
+                      </Link>
                       <button
                         onClick={() => {
                           handleLogout();

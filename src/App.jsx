@@ -14,6 +14,8 @@ import Booking from './pages/Booking';
 import Footer from './components/Footer';
 import Partners from './components/Partners';
 import Payment from './pages/Payment';
+import Profile from './pages/Profile';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function HomePage() {
   return (
@@ -42,6 +44,14 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/payment" element={<Payment />} />
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } 
+            />
           </Routes>
         </div>
         {/* <Partners /> */}

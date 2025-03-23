@@ -4,7 +4,8 @@ import axios from 'axios';
 const API_URL = import.meta.env.DEV ? '' : 'http://fur.runasp.net';
 
 const api = axios.create({
-  baseURL: API_URL,
+  // Trong môi trường development, sử dụng proxy
+  baseURL: '',  // Để trống để sử dụng proxy
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
