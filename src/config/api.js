@@ -7,7 +7,7 @@ const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': '*/*'
+    'Accept': 'application/json'
   },
   withCredentials: false
 });
@@ -36,10 +36,24 @@ api.interceptors.response.use(
       return Promise.reject(new Error('Lỗi kết nối đến server. Vui lòng thử lại sau!'));
     }
     
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+    if (error.response) {
+      // Xử lý các mã lỗi HTTP
+      switch (error.response.status) {
+        case 401:
+          // Xử lý lỗi unauthorized
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+          break;
+        case 403:
+          // Xử lý lỗi forbidden
+          break;
+        case 404:
+          // Xử lý lỗi not found
+          break;
+        default:
+          break;
+      }
     }
 
     // Trả về message lỗi từ server nếu có

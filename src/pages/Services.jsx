@@ -1,65 +1,137 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-
-const serviceData = [
-  {
-    id: 1,
-    title: "Spa & Grooming",
-    description: "Làm đẹp và thư giãn cho thú cưng với các dịch vụ chuyên nghiệp.",
-    price: "300.000đ/lần",
-    rating: "4.7",
-    location: "Hồ Chí Minh, Việt Nam",
-    image: "https://storage.googleapis.com/a1aa/image/iAXPL7UKJQJu5_TeWeAXU58kb0Kp8ljqgvmG-ebZzfg.jpg"
-  },
-  {
-    id: 2,
-    title: "Khách sạn thú cưng 5 sao",
-    description: "Chăm sóc tận tâm, không gian rộng rãi và thoải mái.",
-    price: "500.000đ/ngày",
-    rating: "4.8",
-    location: "Hà Nội, Việt Nam",
-    image: "https://storage.googleapis.com/a1aa/image/rOEND5-OWAPWw_LpNxeE3SFXomwobFBcX4z5got8ScA.jpg"
-  },
-  {
-    id: 3,
-    title: "Dịch vụ trông giữ thú cưng",
-    description: "Không gian vui chơi an toàn và thoải mái cho thú cưng của bạn.",
-    price: "200.000đ/ngày",
-    rating: "4.6",
-    location: "Đà Nẵng, Việt Nam",
-    image: "https://storage.googleapis.com/a1aa/image/2sBF1lF6-bRtPcjGc2Wy6OVAjdglQoGdSSa6OEF8nJM.jpg"
-  },
-  {
-    id: 4,
-    title: "Huấn luyện thú cưng",
-    description: "Huấn luyện chuyên nghiệp giúp thú cưng của bạn ngoan ngoãn và nghe lời.",
-    price: "600.000đ/khóa",
-    rating: "4.8",
-    location: "Hồ Chí Minh, Việt Nam",
-    image: "https://storage.googleapis.com/a1aa/image/NBUvzfMjq4JsUVSgZYTHRYBF_0pGT_j-zr2DA3kGWys.jpg"
-  },
-  {
-    id: 5,
-    title: "Dịch vụ thú y",
-    description: "Chăm sóc sức khỏe chuyên nghiệp cho thú cưng của bạn.",
-    price: "400.000đ/lần",
-    rating: "4.9",
-    location: "Hà Nội, Việt Nam",
-    image: "https://storage.googleapis.com/a1aa/image/3ETOBJZfLIApddXEq0lq-Co6xXrW1dqpjLn6KQhUgx8.jpg"
-  },
-  {
-    id: 6,
-    title: "Giao thức ăn cho thú cưng",
-    description: "Giao thức ăn chất lượng cao đến nhà cho thú cưng của bạn.",
-    price: "100.000đ/gói",
-    rating: "4.7",
-    location: "Toàn quốc",
-    image: "https://storage.googleapis.com/a1aa/image/HRgRMwVi7zYW_s7gUl0j6ugKzytusYr_9QdZ-1baZqU.jpg"
-  }
-];
+import api from '../config/api';
 
 const Services = () => {
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const navigate = useNavigate();
+
+  const ITEMS_PER_PAGE = 6; // 2 dòng, mỗi dòng 3 dịch vụ
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await api.get('/api/storeservices');
+        // Lọc các dịch vụ hợp lệ (có tên, mô tả và giá)
+        const validServices = response.data.$values.filter(service => 
+          service.ssName && 
+          service.sDesc && 
+          service.price > 0 && 
+          service.img && 
+          service.img !== "string"
+        );
+        setServices(validServices);
+      } catch (error) {
+        console.error('Error fetching services:', error);
+        let errorMessage = 'Không thể tải dữ liệu dịch vụ';
+        if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        }
+        setError(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
+
+  // Tính toán các dịch vụ cho trang hiện tại
+  const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
+  const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
+  const currentServices = services.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(services.length / ITEMS_PER_PAGE);
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(price);
+  };
+
+  // Component phân trang - luôn hiển thị ít nhất 1 trang
+  const Pagination = () => {
+    // Đảm bảo luôn có ít nhất 1 trang
+    const minPages = Math.max(1, totalPages);
+
+    return (
+      <div className="flex justify-center mt-8 space-x-2">
+        <button
+          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+          className={`px-3 py-1 rounded-md ${
+            currentPage === 1
+              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+              : 'bg-rose-500 text-white hover:bg-rose-600'
+          }`}
+        >
+          Trước
+        </button>
+        
+        {[...Array(minPages)].map((_, index) => (
+          <button
+            key={index + 1}
+            onClick={() => setCurrentPage(index + 1)}
+            className={`px-3 py-1 rounded-md ${
+              currentPage === index + 1
+                ? 'bg-rose-500 text-white'
+                : 'bg-white text-gray-700 hover:bg-rose-100'
+            } min-w-[32px]`} // Thêm min-width để nút số không bị co lại
+          >
+            {index + 1}
+          </button>
+        ))}
+
+        <button
+          onClick={() => setCurrentPage(prev => Math.min(prev + 1, minPages))}
+          disabled={currentPage === minPages}
+          className={`px-3 py-1 rounded-md ${
+            currentPage === minPages
+              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+              : 'bg-rose-500 text-white hover:bg-rose-600'
+          }`}
+        >
+          Sau
+        </button>
+      </div>
+    );
+  };
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen bg-pink-100 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-rose-500"></div>
+        </div>
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen bg-pink-100 flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Có lỗi xảy ra</h2>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="bg-rose-500 text-white px-6 py-2 rounded-lg hover:bg-rose-600 transition-colors"
+            >
+              Thử lại
+            </button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <Navbar />
@@ -67,32 +139,33 @@ const Services = () => {
         <div className="container mx-auto py-6 px-4 max-w-5xl">
           <h1 className="text-center text-xl font-bold mb-6">Các dịch vụ chúng tôi cung cấp</h1>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {serviceData.map((service) => (
-              <div key={service.id} className="bg-white rounded-md shadow-sm overflow-hidden hover:shadow transition-shadow">
+            {currentServices.map((service) => (
+              <div key={service.sServiceID} className="bg-white rounded-md shadow-sm overflow-hidden hover:shadow transition-shadow">
                 <img
-                  src={service.image}
-                  alt={service.title}
+                  src={service.img}
+                  alt={service.ssName}
                   className="w-full h-32 object-cover"
                 />
                 <div className="p-2.5">
-                  <h2 className="text-sm font-bold mb-1.5">{service.title}</h2>
-                  <p className="text-gray-600 mb-2 text-xs h-8 overflow-hidden">{service.description}</p>
+                  <h2 className="text-sm font-bold mb-1.5">{service.ssName}</h2>
+                  <p className="text-gray-600 mb-2 text-xs h-8 overflow-hidden">{service.sDesc}</p>
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-green-500 font-bold text-xs">{service.price}</span>
-                    <span className="text-yellow-500 text-xs">
-                      <i className="fas fa-star"></i> {service.rating}
-                    </span>
-                  </div>
-                  <div className="flex items-center text-gray-600 mb-2 text-xs">
-                    <i className="fas fa-map-marker-alt mr-1.5"></i>
-                    <span>{service.location}</span>
+                    <span className="text-green-500 font-bold text-xs">{formatPrice(service.price)}</span>
+                    {service.discount > 0 && (
+                      <span className="text-rose-500 text-xs font-semibold">
+                        Giảm {service.discount}%
+                      </span>
+                    )}
                   </div>
                   <div className="flex flex-col space-y-1.5">
-                    <button className="bg-green-500 text-white py-1 rounded-sm text-xs hover:bg-green-600 transition-colors w-full">
+                    <button 
+                      onClick={() => navigate(`/booking/${service.sServiceID}`)}
+                      className="bg-green-500 text-white py-1 rounded-sm text-xs hover:bg-green-600 transition-colors w-full"
+                    >
                       Đặt lịch ngay
                     </button>
                     <Link 
-                      to={`/services/${service.id}`} 
+                      to={`/services/${service.sServiceID}`} 
                       className="bg-blue-500 text-white py-1 rounded-sm text-xs hover:bg-blue-600 transition-colors w-full text-center"
                     >
                       Xem chi tiết
@@ -102,21 +175,9 @@ const Services = () => {
               </div>
             ))}
           </div>
-
-          {/* Pagination */}
-          <div className="flex justify-center mt-5">
-            <button className="bg-gray-300 text-gray-700 px-2.5 py-1 rounded-l text-xs">
-              <i className="fas fa-chevron-left"></i>
-            </button>
-            <button className="bg-blue-500 text-white px-2.5 py-1 text-xs">1</button>
-            <button className="bg-white text-gray-700 px-2.5 py-1 text-xs">2</button>
-            <button className="bg-white text-gray-700 px-2.5 py-1 text-xs">...</button>
-            <button className="bg-white text-gray-700 px-2.5 py-1 text-xs">9</button>
-            <button className="bg-white text-gray-700 px-2.5 py-1 text-xs">10</button>
-            <button className="bg-gray-300 text-gray-700 px-2.5 py-1 rounded-r text-xs">
-              <i className="fas fa-chevron-right"></i>
-            </button>
-          </div>
+          
+          {/* Luôn hiển thị phân trang */}
+          <Pagination />
         </div>
       </div>
     </>
