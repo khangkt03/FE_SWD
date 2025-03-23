@@ -56,7 +56,10 @@ const AddPetModal = ({ isOpen, onClose, onSuccess }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg w-96 relative">
-        <button onClick={onClose} className="absolute top-4 right-4">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+        >
           <X className="h-6 w-6" />
         </button>
         
@@ -64,53 +67,64 @@ const AddPetModal = ({ isOpen, onClose, onSuccess }) => {
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Tên thú cưng</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Tên thú cưng
+            </label>
             <input
               type="text"
               value={petData.petName}
               onChange={(e) => setPetData({...petData, petName: e.target.value})}
-              className="w-full p-2 border rounded-md"
+              className="w-full p-2 border rounded-md focus:ring-rose-500 focus:border-rose-500"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Giống</label>
-            <input
-              type="text"
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Giới tính thú cưng
+            </label>
+            <select
               value={petData.breed}
               onChange={(e) => setPetData({...petData, breed: e.target.value})}
-              className="w-full p-2 border rounded-md"
+              className="w-full p-2 border rounded-md focus:ring-rose-500 focus:border-rose-500 text-gray-700"
               required
-            />
+            >
+              <option value="" disabled>Chọn giới tính thú cưng</option>
+              <option value="Đực">Đực</option>
+              <option value="Cái">Cái</option>
+            </select>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Tuổi</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Tuổi
+            </label>
             <input
               type="number"
               value={petData.age}
               onChange={(e) => setPetData({...petData, age: e.target.value})}
-              className="w-full p-2 border rounded-md"
+              className="w-full p-2 border rounded-md focus:ring-rose-500 focus:border-rose-500"
               required
               min="0"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Link ảnh</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Link ảnh
+            </label>
             <input
               type="text"
               value={petData.picture}
               onChange={(e) => setPetData({...petData, picture: e.target.value})}
-              className="w-full p-2 border rounded-md"
+              className="w-full p-2 border rounded-md focus:ring-rose-500 focus:border-rose-500"
               required
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-rose-500 text-white py-2 rounded-md hover:bg-rose-600"
+            className="w-full bg-rose-500 text-white py-2 rounded-md hover:bg-rose-600 transition-colors"
           >
             Thêm thú cưng
           </button>
