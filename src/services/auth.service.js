@@ -14,10 +14,21 @@ const login = async (username, password) => {
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
       
-      // Cấu hình mặc định cho axios với token mới
-      api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+      // Tạo object user từ JWT token
+      const tokenPayload = JSON.parse(atob(accessToken.split('.')[1]));
+      const user = {
+        userId: tokenPayload.UserID,
+        userName: tokenPayload.Username,
+        email: tokenPayload.Email,
+        fullName: tokenPayload.fullName,
+        role: tokenPayload.Role
+      };
+      
+      // Lưu user vào localStorage
+      localStorage.setItem('user', JSON.stringify(user));
       
       return {
+        user,
         token: accessToken,
         refreshToken: refreshToken
       };

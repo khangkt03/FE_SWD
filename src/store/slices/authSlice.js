@@ -1,8 +1,20 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+const TOKEN_KEY = 'accessToken';
+
+const getUserFromStorage = () => {
+  try {
+    const userStr = localStorage.getItem('user');
+    return userStr ? JSON.parse(userStr) : null;
+  } catch (error) {
+    console.error('Error parsing user data:', error);
+    return null;
+  }
+};
+
 const initialState = {
-  user: JSON.parse(localStorage.getItem('user')),
-  token: localStorage.getItem('token'),
+  user: getUserFromStorage(),
+  token: localStorage.getItem(TOKEN_KEY),
   isLoading: false,
   error: null,
 };
@@ -15,13 +27,17 @@ const authSlice = createSlice({
       const { user, token } = action.payload;
       state.user = user;
       state.token = token;
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      try {
+        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem(TOKEN_KEY, token);
+      } catch (error) {
+        console.error('Error saving credentials:', error);
+      }
     },
     logout: (state) => {
       state.user = null;
       state.token = null;
-      localStorage.removeItem('token');
+      localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem('user');
     },
   },

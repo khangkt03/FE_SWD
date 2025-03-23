@@ -107,14 +107,23 @@ const Services = () => {
     if (!token) {
       toast.info('Vui lòng đăng nhập để đặt lịch dịch vụ');
       navigate('/login');
+      // Lưu service ID để sau khi đăng nhập có thể quay lại
+      localStorage.setItem('pendingBookingService', service.sServiceID);
     } else {
-      // Lưu đầy đủ thông tin service
-      localStorage.setItem('selectedService', JSON.stringify({
-        sServiceID: service.sServiceID,
-        serviceName: service.ssName,
-        price: service.price
-      }));
-      navigate(`/booking/${service.sServiceID}`);
+      try {
+        // Lưu đầy đủ thông tin service cần thiết
+        const serviceInfo = {
+          sServiceID: service.sServiceID,
+          ssName: service.ssName,
+          price: service.price,
+          description: service.sDesc
+        };
+        localStorage.setItem('selectedService', JSON.stringify(serviceInfo));
+        navigate(`/booking/${service.sServiceID}`);
+      } catch (error) {
+        console.error('Error saving service info:', error);
+        toast.error('Có lỗi xảy ra, vui lòng thử lại');
+      }
     }
   };
 

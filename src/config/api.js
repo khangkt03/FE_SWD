@@ -12,12 +12,14 @@ const api = axios.create({
   withCredentials: false
 });
 
+const TOKEN_KEY = 'accessToken';
+
 // Add a request interceptor
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem(TOKEN_KEY);
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers['Authorization'] = `Bearer ${token}`;
     }
     return config;
   },
@@ -41,7 +43,7 @@ api.interceptors.response.use(
       switch (error.response.status) {
         case 401:
           // Xử lý lỗi unauthorized
-          localStorage.removeItem('token');
+          localStorage.removeItem(TOKEN_KEY);
           localStorage.removeItem('user');
           window.location.href = '/login';
           break;

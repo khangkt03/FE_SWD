@@ -16,11 +16,11 @@ const Booking = () => {
   const [error, setError] = useState(null);
   const [selectedService, setSelectedService] = useState(null);
   const [bookingData, setBookingData] = useState({
-    ownerName: '',
     startDate: '',
-    daysOfUse: '1',
+    daysOfUse: 1,
     timeSlot: '',
-    note: ''
+    notes: '',
+    petId: ''
   });
 
   useEffect(() => {
@@ -32,10 +32,19 @@ const Booking = () => {
       return;
     }
 
-    // Lấy thông tin service từ localStorage
-    const savedService = localStorage.getItem('selectedService');
-    if (savedService) {
-      setSelectedService(JSON.parse(savedService));
+    try {
+      const serviceData = localStorage.getItem('selectedService');
+      if (!serviceData) {
+        toast.error('Không tìm thấy thông tin dịch vụ');
+        navigate('/services');
+        return;
+      }
+      const service = JSON.parse(serviceData);
+      setSelectedService(service);
+    } catch (error) {
+      console.error('Error loading service data:', error);
+      toast.error('Có lỗi xảy ra khi tải thông tin dịch vụ');
+      navigate('/services');
     }
 
     // Fetch danh sách pets với token
@@ -85,61 +94,59 @@ const Booking = () => {
     setSelectedPet(pet);
     setIsDropdownOpen(false);
     localStorage.setItem('selectedBookingPet', JSON.stringify(pet));
-  };
-
-  const handleConfirmBooking = () => {
-    // Kiểm tra token trước khi xử lý
-    const token = localStorage.getItem(TOKEN_KEY);
-    if (!token) {
-      toast.error('Vui lòng đăng nhập để tiếp tục');
-      navigate('/login');
-      return;
-    }
-
-    if (!selectedPet) {
-      toast.error('Vui lòng chọn thú cưng của bạn');
-      return;
-    }
-
-    if (!bookingData.startDate) {
-      toast.error('Vui lòng chọn ngày sử dụng');
-      return;
-    }
-
-    if (!bookingData.timeSlot) {
-      toast.error('Vui lòng chọn giờ');
-      return;
-    }
-
-    if (!selectedService) {
-      toast.error('Không tìm thấy thông tin dịch vụ');
-      return;
-    }
-
-    const bookingInfo = {
-      petID: selectedPet.petId,
-      sServiceID: selectedService.sServiceID,
-      bookingName: "string",
-      bookingDate: new Date(bookingData.startDate).toISOString(),
-      bookingTime: bookingData.timeSlot,
-      useDay: parseInt(bookingData.daysOfUse) || 1,
-      status: "string",
-      totalPrice: calculateTotalCost(),
-      bookingProgress: 0
-    };
-
-    // Lưu token cùng với thông tin booking
-    localStorage.setItem('pendingBooking', JSON.stringify({
-      ...bookingInfo,
-      token: token // Lưu token để sử dụng ở trang Payment
+    setBookingData(prev => ({
+      ...prev,
+      petId: pet.petId
     }));
-
-    navigate('/payment');
   };
 
   const calculateTotalCost = () => {
-    const daysOfUse = parseInt(bookingData.daysOfUse) || 1;
-    return (selectedService?.price || 500000) * daysOfUse;
+    if (!selectedService || !bookingData.daysOfUse) return 0;
+    return selectedService.price * bookingData.daysOfUse;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      if (!bookingData.petId) {
+        toast.error('Vui lòng chọn thú cưng');
+        return;
+      }
+
+      if (!bookingData.startDate) {
+        toast.error('Vui lòng chọn ngày sử dụng');
+        return;
+      }
+
+      if (!bookingData.timeSlot) {
+        toast.error('Vui lòng chọn giờ');
+        return;
+      }
+
+      const bookingPayload = {
+        petID: bookingData.petId,
+        sServiceID: selectedService.sServiceID,
+        bookingName: selectedService.ssName,
+        bookingDate: new Date(bookingData.startDate).toISOString(),
+        bookingTime: bookingData.timeSlot,
+        useDay: parseInt(bookingData.daysOfUse),
+        notes: bookingData.notes || '',
+        totalPrice: calculateTotalCost(),
+        bookingProgress: 0,
+        status: 'Pending'
+      };
+
+      // Lưu thông tin booking tạm thời
+      localStorage.setItem('pendingBooking', JSON.stringify(bookingPayload));
+      
+      // Chuyển đến trang thanh toán
+      navigate('/payment');
+      
+    } catch (error) {
+      console.error('Booking error:', error);
+      toast.error('Có lỗi xảy ra khi đặt lịch');
+    }
   };
 
   return (
@@ -163,7 +170,7 @@ const Booking = () => {
                 Tên dịch vụ
               </label>
               <div className="w-full bg-gray-50 border border-gray-300 rounded-lg py-3 px-4">
-                <div className="font-medium text-gray-900">{selectedService?.serviceName}</div>
+                <div className="font-medium text-gray-900">{selectedService?.ssName}</div>
               </div>
             </div>
 
@@ -302,8 +309,8 @@ const Booking = () => {
                   Yêu cầu (tùy chọn)
                 </label>
                 <textarea
-                  name="note"
-                  value={bookingData.note}
+                  name="notes"
+                  value={bookingData.notes}
                   onChange={handleInputChange}
                   placeholder="Nhập yêu cầu đặc biệt của bạn..."
                   className="w-full border border-gray-300 rounded-lg py-2 px-4 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-rose-500"
@@ -321,7 +328,7 @@ const Booking = () => {
               </div>
 
               <button
-                onClick={handleConfirmBooking}
+                onClick={handleSubmit}
                 className="w-full bg-rose-500 text-white py-3 rounded-lg font-medium hover:bg-rose-600 transition-colors duration-200"
               >
                 Xác nhận đặt lịch
