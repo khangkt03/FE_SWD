@@ -13,6 +13,7 @@
     "axios": "^1.6.2",
     "lucide-react": "^0.330.0",
     "petcenter": "file:",
+    "qrcode.react": "^4.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-redux": "^9.0.4",

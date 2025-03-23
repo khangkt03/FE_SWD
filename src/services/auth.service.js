@@ -1,72 +1,49 @@
 import api from '../config/api';
 
-const AuthService = {
-  login: async (username, password) => {
-    try {
-      const response = await api.post('/api/Login/login', {
-        username,
-        password
-      });
+const login = async (username, password) => {
+  try {
+    const response = await api.post('/api/Login/login', {
+      username,
+      password,
+    });
+
+    if (response.data.isSuccess) {
+      const { accessToken, refreshToken } = response.data.result;
       
-      console.log('Login response:', response);
+      // Lưu token vào localStorage
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
       
-      // Kiểm tra response có data không
-      if (!response.data) {
-        throw new Error('Không nhận được dữ liệu từ server');
-      }
-
-      // Lưu thông tin user
-      const userData = {
-        username: username,
-        // Có thể thêm các thông tin khác từ response.data
-      };
-
-      // Lưu token nếu có
-      const token = response.data.token || response.data.accessToken;
-      if (token) {
-        localStorage.setItem('token', token);
-      }
-
-      localStorage.setItem('user', JSON.stringify(userData));
+      // Cấu hình mặc định cho axios với token mới
+      api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
       
       return {
-        user: userData,
-        token: token
+        token: accessToken,
+        refreshToken: refreshToken
       };
-    } catch (error) {
-      console.error('Login error details:', error);
-      throw error;
+    } else {
+      throw new Error(response.data.message || 'Đăng nhập thất bại');
     }
-  },
-
-  register: async (userData) => {
-    try {
-      const response = await api.post('/api/User/register', {
-        userName: userData.userName,
-        email: userData.email,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        passWord: userData.passWord,
-        confirmPassword: userData.confirmPassword,
-        avatar: ""
-      });
-      
-      console.log('Register response:', response);
-      return response.data;
-    } catch (error) {
-      console.error('Register error:', error);
-      throw error;
-    }
-  },
-
-  logout: () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-  },
-
-  getCurrentUser: () => {
-    return JSON.parse(localStorage.getItem('user'));
-  },
+  } catch (error) {
+    throw error;
+  }
 };
 
-export default AuthService; 
+const logout = () => {
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+};
+
+const getCurrentUser = () => {
+  const token = localStorage.getItem('accessToken');
+  const user = localStorage.getItem('user');
+  return { token, user: user ? JSON.parse(user) : null };
+};
+
+const authService = {
+  login,
+  logout,
+  getCurrentUser,
+};
+
+export default authService; 

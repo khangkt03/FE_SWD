@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import api from '../config/api';
+import { toast } from 'react-toastify';
 
 const Services = () => {
   const [services, setServices] = useState([]);
@@ -101,6 +102,22 @@ const Services = () => {
     );
   };
 
+  const handleBookingClick = (service) => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      toast.info('Vui lòng đăng nhập để đặt lịch dịch vụ');
+      navigate('/login');
+    } else {
+      // Lưu đầy đủ thông tin service
+      localStorage.setItem('selectedService', JSON.stringify({
+        sServiceID: service.sServiceID,
+        serviceName: service.ssName,
+        price: service.price
+      }));
+      navigate(`/booking/${service.sServiceID}`);
+    }
+  };
+
   if (loading) {
     return (
       <>
@@ -159,7 +176,7 @@ const Services = () => {
                   </div>
                   <div className="flex flex-col space-y-1.5">
                     <button 
-                      onClick={() => navigate(`/booking/${service.sServiceID}`)}
+                      onClick={() => handleBookingClick(service)}
                       className="bg-green-500 text-white py-1 rounded-sm text-xs hover:bg-green-600 transition-colors w-full"
                     >
                       Đặt lịch ngay

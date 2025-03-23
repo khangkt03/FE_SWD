@@ -13,6 +13,7 @@ import Register from './components/auth/Register';
 import Booking from './pages/Booking';
 import Footer from './components/Footer';
 import Partners from './components/Partners';
+import Payment from './pages/Payment';
 
 function HomePage() {
   return (
@@ -39,6 +40,7 @@ function App() {
             <Route path="/booking/:id" element={<Booking />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/payment" element={<Payment />} />
           </Routes>
         </div>
         <Partners />
