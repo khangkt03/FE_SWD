@@ -24,6 +24,7 @@ function HomePage() {
       <FeaturedProducts />
       <ServicesSection />
       <Features />
+     <Partners /> 
     </>
   );
 }
@@ -43,7 +44,7 @@ function App() {
             <Route path="/payment" element={<Payment />} />
           </Routes>
         </div>
-        <Partners />
+        {/* <Partners /> */}
         <Footer />
       </div>
     </Router>
