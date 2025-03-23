@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Navbar from '../components/Navbar';
 import api from '../config/api';
+import AddPetModal from '../components/AddPetModal';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ const Profile = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [pets, setPets] = useState([]);
   const [bookings, setBookings] = useState([]);
+  const [isAddPetModalOpen, setIsAddPetModalOpen] = useState(false);
   
   useEffect(() => {
     const fetchData = async () => {
@@ -64,6 +66,18 @@ const Profile = () => {
     return colorMap[status] || 'bg-gray-100 text-gray-800';
   };
 
+  // Thêm hàm refresh pets
+  const refreshPets = async () => {
+    try {
+      const response = await api.get('/api/Pet');
+      if (response.data.isSuccess) {
+        setPets(response.data.result.$values || []);
+      }
+    } catch (error) {
+      console.error('Error fetching pets:', error);
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -114,7 +128,7 @@ const Profile = () => {
                   <div>
                     <div className="mb-6">
                       <button 
-                        onClick={() => navigate('/add-pet')}
+                        onClick={() => setIsAddPetModalOpen(true)}
                         className="px-6 py-3 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors flex items-center gap-2"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -123,6 +137,12 @@ const Profile = () => {
                         Thêm thú cưng mới
                       </button>
                     </div>
+                    
+                    <AddPetModal 
+                      isOpen={isAddPetModalOpen}
+                      onClose={() => setIsAddPetModalOpen(false)}
+                      onSuccess={refreshPets}
+                    />
                     
                     {pets.length > 0 ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
