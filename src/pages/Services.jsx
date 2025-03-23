@@ -9,6 +9,8 @@ const Services = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [servicesPerPage, setServicesPerPage] = useState(3);
+  const [isListView, setIsListView] = useState(false);
   const navigate = useNavigate();
 
   const ITEMS_PER_PAGE = 6; // 2 dòng, mỗi dòng 3 dịch vụ
@@ -46,6 +48,18 @@ const Services = () => {
   const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
   const currentServices = services.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(services.length / ITEMS_PER_PAGE);
+
+  // Tính toán phân trang
+  const indexOfLastService = currentPage * servicesPerPage;
+  const indexOfFirstService = indexOfLastService - servicesPerPage;
+  const currentServicesPerPage = services.slice(indexOfFirstService, indexOfLastService);
+  const totalPagesPerPage = Math.ceil(services.length / servicesPerPage);
+
+  // Hàm xử lý thay đổi số lượng hiển thị
+  const handleServicesPerPageChange = (value) => {
+    setServicesPerPage(parseInt(value));
+    setCurrentPage(1);
+  };
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -127,6 +141,12 @@ const Services = () => {
     }
   };
 
+  // Thêm hàm giới hạn độ dài mô tả
+  const truncateDescription = (text, maxLength = 100) => {
+    if (text.length <= maxLength) return text;
+    return text.slice(0, maxLength) + '...';
+  };
+
   if (loading) {
     return (
       <>
@@ -164,38 +184,103 @@ const Services = () => {
       <div className="bg-pink-100 min-h-screen pt-16">
         <div className="container mx-auto py-6 px-4 max-w-5xl">
           <h1 className="text-center text-xl font-bold mb-6">Các dịch vụ chúng tôi cung cấp</h1>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {currentServices.map((service) => (
-              <div key={service.sServiceID} className="bg-white rounded-md shadow-sm overflow-hidden hover:shadow transition-shadow">
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsListView(false)}
+                  className={`p-2 rounded-md ${
+                    !isListView 
+                      ? 'bg-rose-500 text-white' 
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                  title="Hiển thị dạng lưới"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5z" />
+                    <path d="M11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => setIsListView(true)}
+                  className={`p-2 rounded-md ${
+                    isListView 
+                      ? 'bg-rose-500 text-white' 
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                  title="Hiển thị dạng danh sách"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <label htmlFor="perPage" className="text-sm font-medium text-gray-600">
+                  Hiển thị:
+                </label>
+                <select
+                  id="perPage"
+                  value={servicesPerPage}
+                  onChange={(e) => handleServicesPerPageChange(e.target.value)}
+                  className="px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+                >
+                  <option value="3">3 dịch vụ</option>
+                  <option value="6">6 dịch vụ</option>
+                  <option value="9">9 dịch vụ</option>
+                  <option value={services.length}>Tất cả</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div className={isListView ? 'space-y-6' : 'grid grid-cols-1 md:grid-cols-3 gap-6'}>
+            {currentServicesPerPage.map((service) => (
+              <div 
+                key={service.sServiceID}
+                className={`bg-white rounded-lg shadow-md overflow-hidden ${
+                  isListView ? 'flex' : ''
+                } cursor-pointer`}
+                onClick={() => navigate(`/service-detail/${service.sServiceID}`)}
+              >
                 <img
                   src={service.img}
                   alt={service.ssName}
-                  className="w-full h-32 object-cover"
+                  className={`object-cover ${
+                    isListView ? 'w-48 h-48' : 'w-full h-48'
+                  }`}
                 />
-                <div className="p-2.5">
-                  <h2 className="text-sm font-bold mb-1.5">{service.ssName}</h2>
-                  <p className="text-gray-600 mb-2 text-xs h-8 overflow-hidden">{service.sDesc}</p>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-green-500 font-bold text-xs">{formatPrice(service.price)}</span>
-                    {service.discount > 0 && (
-                      <span className="text-rose-500 text-xs font-semibold">
-                        Giảm {service.discount}%
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex flex-col space-y-1.5">
-                    <button 
-                      onClick={() => handleBookingClick(service)}
-                      className="bg-green-500 text-white py-1 rounded-sm text-xs hover:bg-green-600 transition-colors w-full"
-                    >
-                      Đặt lịch ngay
-                    </button>
-                    <Link 
-                      to={`/services/${service.sServiceID}`} 
-                      className="bg-blue-500 text-white py-1 rounded-sm text-xs hover:bg-blue-600 transition-colors w-full text-center"
-                    >
-                      Xem chi tiết
-                    </Link>
+                <div className="p-6 flex-1">
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                    {service.ssName}
+                  </h3>
+                  <p className="text-gray-600 mb-4 line-clamp-2">
+                    {truncateDescription(service.sDesc)}
+                  </p>
+                  <div className="flex flex-col gap-3">
+                    <span className="text-lg font-bold text-rose-600">
+                      {formatPrice(service.price)}
+                    </span>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/service-detail/${service.sServiceID}`);
+                        }}
+                        className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                      >
+                        Xem chi tiết
+                      </button>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleBookingClick(service);
+                        }}
+                        className="flex-1 px-4 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors"
+                      >
+                        Đặt lịch
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

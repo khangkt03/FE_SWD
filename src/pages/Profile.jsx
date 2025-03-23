@@ -109,7 +109,7 @@ const Profile = () => {
 
     return rangeWithDots;
   };
-
+  
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -210,8 +210,8 @@ const Profile = () => {
               </div>
               
               <div>
-                <h1 className="text-3xl font-bold text-gray-800">Trang cá nhân</h1>
-                <p className="text-gray-600 mt-2">Quản lý thông tin thú cưng và lịch sử đặt lịch</p>
+              <h1 className="text-3xl font-bold text-gray-800">Trang cá nhân</h1>
+              <p className="text-gray-600 mt-2">Quản lý thông tin thú cưng và lịch sử đặt lịch</p>
               </div>
             </div>
 
@@ -339,22 +339,22 @@ const Profile = () => {
                               <div className={`flex items-center ${!isGridLayout ? 'gap-6' : 'space-x-4'}`}>
                                 <img 
                                   src={pet.picture || '/default-pet.png'} 
-                                  alt={pet.petName}
-                                  className="w-24 h-24 rounded-full object-cover"
-                                />
-                                <div>
-                                  <h3 className="text-xl font-semibold text-gray-800">{pet.petName}</h3>
+                                alt={pet.petName}
+                                className="w-24 h-24 rounded-full object-cover"
+                              />
+                              <div>
+                                <h3 className="text-xl font-semibold text-gray-800">{pet.petName}</h3>
                                   <p className="text-gray-600">
                                     <span className="font-bold">Giống</span>: {pet.breed}
                                   </p>
                                   <p className="text-gray-600">
                                     <span className="font-bold">Tuổi</span>: {pet.age} tuổi
                                   </p>
-                                </div>
                               </div>
                             </div>
-                          ))}
-                        </div>
+                          </div>
+                        ))}
+                      </div>
 
                         {/* Phân trang - đã bỏ điều kiện totalPages > 1 */}
                         <div className="flex justify-center mt-6 space-x-2">
@@ -573,18 +573,18 @@ const Profile = () => {
                                   <div className="space-y-2">
                                     <h3 className="text-xl font-semibold text-gray-800">
                                       {booking.sService?.ssName}
-                                    </h3>
+                                </h3>
                                     <div className="space-y-1">
                                       <p className="text-gray-600">
                                         <span className="font-medium">Thú cưng:</span> {booking.pet?.petName}
                                       </p>
                                       <p className="text-gray-600">
                                         <span className="font-medium">Ngày sử dụng dịch vụ:</span> {formatDate(booking.bookingDate)}
-                                      </p>
-                                      <p className="text-gray-600">
+                                </p>
+                                <p className="text-gray-600">
                                         <span className="font-medium">Thời gian bắt đầu:</span> {booking.bookingTime}
-                                      </p>
-                                      <p className="text-gray-600">
+                                </p>
+                                <p className="text-gray-600">
                                         <span className="font-medium">Số ngày sử dụng:</span> {booking.useDay}
                                       </p>
                                       <p className="mt-2">
@@ -592,18 +592,18 @@ const Profile = () => {
                                         <span className="text-lg font-bold text-rose-600">
                                           {booking.totalPrice?.toLocaleString('vi-VN')}đ
                                         </span>
-                                      </p>
-                                    </div>
+                                </p>
+                              </div>
                                   </div>
                                 </div>
                                 <span className={`px-4 py-2 rounded-full text-sm font-medium ${getStatusColor(booking.status)}`}>
-                                  {getStatusText(booking.status)}
-                                </span>
-                              </div>
+                                {getStatusText(booking.status)}
+                              </span>
+                            </div>
                             )}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
                     </div>
 
                     {filteredBookings.length === 0 ? (

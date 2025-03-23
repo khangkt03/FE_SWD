@@ -1,33 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import api from '../config/api';
+import { toast } from 'react-toastify';
 
 const ServiceDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchServiceDetail = async () => {
       try {
-        // Lấy toàn bộ danh sách dịch vụ
         const response = await api.get('/api/storeservices');
-        // Tìm dịch vụ có ID tương ứng
-        const foundService = response.data.$values.find(
-          service => service.sServiceID === id
-        );
-        
-        if (!foundService) {
-          throw new Error('Không tìm thấy dịch vụ');
+        if (response.data && response.data.$values) {
+          // Tìm service có ID trùng khớp
+          const serviceData = response.data.$values.find(
+            (service) => service.sServiceID === id
+          );
+          if (serviceData) {
+            setService(serviceData);
+          } else {
+            toast.error('Không tìm thấy dịch vụ');
+          }
         }
-        
-        setService(foundService);
       } catch (error) {
         console.error('Error fetching service details:', error);
-        setError(error.message || 'Không thể tải thông tin dịch vụ');
+        toast.error('Không thể tải thông tin dịch vụ');
       } finally {
         setLoading(false);
       }
@@ -36,6 +36,29 @@ const ServiceDetail = () => {
     fetchServiceDetail();
   }, [id]);
 
+  const handleBookingClick = () => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      toast.info('Vui lòng đăng nhập để đặt lịch dịch vụ');
+      navigate('/login');
+      localStorage.setItem('pendingBookingService', id);
+    } else {
+      try {
+        const serviceInfo = {
+          sServiceID: service.sServiceID,
+          ssName: service.ssName,
+          price: service.price,
+          description: service.sDesc
+        };
+        localStorage.setItem('selectedService', JSON.stringify(serviceInfo));
+        navigate(`/booking/${service.sServiceID}`);
+      } catch (error) {
+        console.error('Error saving service info:', error);
+        toast.error('Có lỗi xảy ra, vui lòng thử lại');
+      }
+    }
+  };
+
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -43,38 +66,29 @@ const ServiceDetail = () => {
     }).format(price);
   };
 
-  // Danh sách dịch vụ cố định
-  const includedServices = [
-    "Chỗ ở thoải mái và an toàn",
-    "Chăm sóc sức khỏe và dinh dưỡng",
-    "Chơi đùa và tập thể dục hàng ngày",
-    "Giám sát và chăm sóc 24/7"
-  ];
-
   if (loading) {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen bg-pink-50 flex items-center justify-center">
+        <div className="min-h-screen bg-pink-100 flex items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-rose-500"></div>
         </div>
       </>
     );
   }
 
-  if (error || !service) {
+  if (!service) {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen bg-pink-50 flex items-center justify-center">
+        <div className="min-h-screen bg-pink-100 flex items-center justify-center">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Có lỗi xảy ra</h2>
-            <p className="text-gray-600 mb-4">{error}</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Không tìm thấy dịch vụ</h2>
             <button 
-              onClick={() => navigate(-1)}
+              onClick={() => navigate('/services')}
               className="bg-rose-500 text-white px-6 py-2 rounded-lg hover:bg-rose-600 transition-colors"
             >
-              Quay lại
+              Quay lại danh sách dịch vụ
             </button>
           </div>
         </div>
@@ -85,23 +99,8 @@ const ServiceDetail = () => {
   return (
     <>
       <Navbar />
-      <div className="bg-pink-50 min-h-screen pt-12">
-        <div className="container mx-auto py-6 px-4 max-w-3xl">
-          <div className="flex items-center justify-between mb-4">
-            <button
-              onClick={() => navigate(-1)}
-              className="flex items-center text-gray-600 hover:text-gray-800 transition-colors text-sm"
-              type="button"
-            >
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Quay lại
-            </button>
-            <h1 className="text-xl font-bold text-gray-900">Chi Tiết Dịch Vụ</h1>
-            <div className="w-16"></div>
-          </div>
-
+      <div className="bg-pink-100 min-h-screen pt-16">
+        <div className="container mx-auto px-4 max-w-3xl">
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="relative h-72">
               <img
@@ -109,51 +108,92 @@ const ServiceDetail = () => {
                 alt={service.ssName}
                 className="w-full h-full object-cover"
               />
-              {service.discount > 0 && (
-                <div className="absolute top-3 right-3 bg-rose-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                  Giảm {service.discount}%
-                </div>
-              )}
+              <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+              <button
+                onClick={() => navigate('/services')}
+                className="absolute top-4 left-4 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-lg hover:bg-white transition-colors flex items-center gap-1.5 text-sm"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                </svg>
+                Quay lại
+              </button>
             </div>
-
-            <div className="p-5">
-              <h1 className="text-2xl font-bold text-gray-900 mb-3">{service.ssName}</h1>
-              
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-2xl font-bold text-rose-500">
-                  {formatPrice(service.price)}
-                </span>
-                <button
-                  onClick={() => navigate(`/booking/${service.sServiceID}`)}
-                  className="bg-rose-500 text-white px-6 py-2 rounded-lg hover:bg-rose-600 transition-colors text-base font-medium"
-                >
-                  Đặt lịch ngay
-                </button>
+            
+            <div className="p-6">
+              <div className="mb-6">
+                <h1 className="text-2xl font-bold text-gray-800 mb-3">{service.ssName}</h1>
+                <div className="flex items-center gap-4 text-gray-600 text-sm">
+                  <span className="flex items-center">
+                    <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Thời gian: 60-90 phút
+                  </span>
+                  <span className="flex items-center">
+                    <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Đảm bảo chất lượng
+                  </span>
+                </div>
               </div>
 
               <div className="mb-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-2">Mô tả dịch vụ</h2>
-                <p className="text-gray-600 leading-relaxed text-sm">{service.sDesc}</p>
+                <h2 className="text-lg font-semibold text-gray-800 mb-3">Chi tiết dịch vụ</h2>
+                <p className="text-gray-600 text-sm whitespace-pre-line leading-relaxed">{service.sDesc}</p>
               </div>
 
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900 mb-2">Dịch vụ bao gồm</h2>
-                <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  {includedServices.map((item, index) => (
-                    <li key={index} className="flex items-center text-gray-600 text-sm">
-                      <svg className="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                      </svg>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold text-gray-800 mb-3">Điểm nổi bật</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                  <div className="flex items-start">
+                    <svg className="w-4 h-4 text-rose-500 mt-0.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-gray-600">Nhân viên chuyên nghiệp, giàu kinh nghiệm</span>
+                  </div>
+                  <div className="flex items-start">
+                    <svg className="w-4 h-4 text-rose-500 mt-0.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-gray-600">Trang thiết bị hiện đại</span>
+                  </div>
+                  <div className="flex items-start">
+                    <svg className="w-4 h-4 text-rose-500 mt-0.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-gray-600">Môi trường sạch sẽ, thoải mái</span>
+                  </div>
+                  <div className="flex items-start">
+                    <svg className="w-4 h-4 text-rose-500 mt-0.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-gray-600">Cam kết hài lòng 100%</span>
+                  </div>
+                </div>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-gray-200">
-                <p className="text-gray-500 text-xs">
-                  * Giá có thể thay đổi tùy theo yêu cầu cụ thể. Vui lòng liên hệ để biết thêm chi tiết.
-                </p>
+              <div className="border-t pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-600 text-sm font-medium mb-1">Giá dịch vụ</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl font-bold text-rose-600">
+                        {formatPrice(service.price)}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleBookingClick}
+                    className="px-6 py-2.5 bg-rose-500 text-white text-sm rounded-lg hover:bg-rose-600 transition-colors flex items-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Đặt lịch ngay
+                  </button>
+                </div>
               </div>
             </div>
           </div>
