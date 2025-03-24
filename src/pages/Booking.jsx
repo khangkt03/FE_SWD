@@ -224,12 +224,16 @@ const Booking = () => {
                         ) : pets.length === 0 ? (
                           <div className="p-4 text-center text-gray-500">
                             <p>Bạn chưa có thú cưng nào</p>
-                            <a 
-                              href="/add-pet" 
-                              className="mt-2 text-sm text-rose-600 hover:text-rose-700 block"
+                            <button 
+                              onClick={() => {
+                                navigate('/profile');
+                                // Lưu service hiện tại vào localStorage để có thể quay lại sau
+                                localStorage.setItem('pendingBookingService', JSON.stringify(selectedService));
+                              }}
+                              className="mt-2 text-sm text-rose-600 hover:text-rose-700 block w-full"
                             >
                               + Thêm thú cưng mới
-                            </a>
+                            </button>
                           </div>
                         ) : (
                           pets.map((pet) => (

@@ -111,6 +111,13 @@ const Profile = () => {
   };
   
   useEffect(() => {
+    const savedTab = localStorage.getItem('activeProfileTab');
+    if (savedTab) {
+      setActiveTab(savedTab);
+      // Xóa giá trị sau khi đã sử dụng
+      localStorage.removeItem('activeProfileTab');
+    }
+
     const fetchData = async () => {
       setIsLoading(true);
       try {
@@ -133,6 +140,19 @@ const Profile = () => {
     };
 
     fetchData();
+
+    // Kiểm tra nếu có pending booking service, set tab pets làm active
+    const pendingBookingService = localStorage.getItem('pendingBookingService');
+    if (pendingBookingService) {
+      setActiveTab('pets');
+    }
+  }, []);
+
+  // Thêm cleanup trong useEffect để xóa pendingBookingService khi component unmount
+  useEffect(() => {
+    return () => {
+      localStorage.removeItem('pendingBookingService');
+    };
   }, []);
 
   // Xử lý chuyển tab

@@ -16,6 +16,7 @@ import Partners from './components/Partners';
 import Payment from './pages/Payment';
 import Profile from './pages/Profile';
 import ProtectedRoute from './components/ProtectedRoute';
+import BookingSuccess from './pages/BookingSuccess';
 
 function HomePage() {
   return (
@@ -52,6 +53,7 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+            <Route path="/booking-success" element={<BookingSuccess />} />
           </Routes>
         </div>
         {/* <Partners /> */}
