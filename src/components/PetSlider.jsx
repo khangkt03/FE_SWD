@@ -1,89 +1,78 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-const petImages = [
-  {
-    url: "https://blog.btaskee.com/wp-content/uploads/2020/02/cham-soc-thu-cung.jpg",
-    caption: ""
-  },
-  {
-    url: "https://azpet.b-cdn.net/wp-content/uploads/2022/09/GettyImages-1215536561-8cd3b21533da4a199e48b1ab8560eaee.jpg",
-    caption: ""
-  },
-  {
-    url: "https://congcutot.vn/uploads/store/page/article/2023/11/cham-soc-thu-cung-tai-cua-hang.jpg",
-    caption: ""
-  },
-  {
-    url: "https://file.hstatic.net/200000165197/article/dsc05818_1a66e21254bf4152825c5314fe207b91_2048x2048.jpg",
-    caption: ""
-  }
-];
-
 const PetSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  const slides = [
+    {
+      image: 'https://blog.btaskee.com/wp-content/uploads/2020/02/cham-soc-thu-cung.jpg'
+    },
+    {
+      image: 'https://congcutot.vn/uploads/store/page/article/2023/11/cham-soc-thu-cung-tai-cua-hang.jpg'
+    },
+    {
+      image: 'https://decor360.net/wp-content/uploads/2022/08/cho-meo-4.jpg'
+    }
+  ];
+
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % petImages.length);
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
     }, 5000);
 
-    return () => clearInterval(timer);
-  }, []);
+    return () => clearInterval(interval);
+  }, [slides.length]);
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % petImages.length);
+    setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + petImages.length) % petImages.length);
+    setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
   };
 
   return (
-    <div className="relative w-full h-[500px] overflow-hidden">
-      {petImages.map((image, index) => (
-        <div
-          key={index}
-          className={`absolute w-full h-full transition-opacity duration-1000 ${
-            index === currentSlide ? 'opacity-100' : 'opacity-0'
-          }`}
-        >
-          <img
-            src={image.url}
-            alt={image.caption}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6">
-            <p className="text-white text-xl font-semibold">{image.caption}</p>
+    <div className="relative h-[600px] w-full overflow-hidden">
+      {/* Slides */}
+      <div className="flex h-full transition-transform duration-500 ease-out"
+        style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
+        {slides.map((slide, index) => (
+          <div
+            key={index}
+            className="min-w-full h-full"
+          >
+            <img
+              src={slide.image}
+              alt="Pet care"
+              className="h-full w-full object-cover"
+            />
           </div>
-        </div>
-      ))}
-      
+        ))}
+      </div>
+
+      {/* Navigation Buttons */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 p-2 rounded-full transition-colors"
-        aria-label="Previous slide"
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-white/30 hover:bg-white/50 transition-all duration-200"
       >
         <ChevronLeft className="w-6 h-6 text-white" />
       </button>
-      
       <button
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 p-2 rounded-full transition-colors"
-        aria-label="Next slide"
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-white/30 hover:bg-white/50 transition-all duration-200"
       >
         <ChevronRight className="w-6 h-6 text-white" />
       </button>
-      
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-        {petImages.map((_, index) => (
+
+      {/* Dots */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex space-x-2">
+        {slides.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentSlide(index)}
-            className={`w-3 h-3 rounded-full transition-colors ${
-              index === currentSlide ? 'bg-white' : 'bg-white/50'
-            }`}
-            aria-label={`Slide ${index + 1}`}
+            className={`w-3 h-3 rounded-full transition-all duration-200 
+              ${currentSlide === index ? 'bg-white w-8' : 'bg-white/50'}`}
           />
         ))}
       </div>
