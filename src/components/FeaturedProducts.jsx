@@ -15,7 +15,7 @@ const products = [
   {
     id: 1,
     name: "Royal Canin Mini Adult",
-    image: "https://example.com/royal-canin.jpg",
+    image: "https://product.hstatic.net/200000491469/product/b2788b799e007f0bd18887b4c3d38556_71274393e3f7424888dd71440188082d_master.jpg",
     description: "Thức ăn cho chó trưởng thành giống nhỏ",
     price: 250000,
     quantity: 1
@@ -23,7 +23,7 @@ const products = [
   {
     id: 2,
     name: "Whiskas Adult Ocean Fish",
-    image: "https://images.unsplash.com/photo-1571945153237-4929e783af4a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80",
+    image: "https://www.whiskas.in/cdn-cgi/image/format=auto,q=90/sites/g/files/fnmzdf2051/files/2022-09/18853301400104-product-image-1.png",
     price: 255000,
     originalPrice: 300000,
     description: "Thức ăn cho mèo trưởng thành vị cá biển",
@@ -32,7 +32,7 @@ const products = [
   {
     id: 3,
     name: "Pedigree Puppy",
-    image: "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+    image: "https://petstation.vn/upload/sanpham/pd-ga-ts-5722.png",
     price: 170000,
     originalPrice: 200000,
     description: "Thức ăn cho chó con các giống",
