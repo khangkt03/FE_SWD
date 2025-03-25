@@ -51,10 +51,20 @@ const getCurrentUser = () => {
   return { token, user: user ? JSON.parse(user) : null };
 };
 
+const register = async (userData) => {
+  try {
+    const response = await api.post('/api/User/register', userData);
+    return response.data; // Trả về dữ liệu từ phản hồi
+  } catch (error) {
+    throw error; // Ném lỗi để xử lý ở nơi gọi
+  }
+};
+
 const authService = {
   login,
   logout,
   getCurrentUser,
+  register,
 };
 
 export default authService; 
